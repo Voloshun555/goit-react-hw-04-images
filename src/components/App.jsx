@@ -35,7 +35,7 @@ function App () {
           `Вибачте, немає зображень, які відповідають вашому пошуковому запиту. Будь ласка спробуйте ще раз`
         );
       }
-      setImages(prevState => [...prevState, data.hits])
+      setImages(prevState => [...prevState, ...data.hits])
       setTotal(data.totalHits)
     } catch (error) {
       
