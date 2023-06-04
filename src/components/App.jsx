@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import css from './App.module.css';
 import Searchbar from './Searchbar/Searchbar';
@@ -9,108 +9,86 @@ import { imgApiService } from '../services/img-api';
 import { Loader } from './Loader/Loader';
 import Modal from 'components/Modal/Modal';
 
-class App extends Component {
-  state = {
-    images: [],
-    tags: '',
-    largeImage: '',
-    query: '',
-    page: 1,
-    showModal: false,
-    total: 0,
-    spiner: false,
-  };
+function App () {
+  const [images, setImages] = useState([])
+  const [tags, setTags] = useState('')
+  const [largeImage, setLargeImage] = useState('')
+  const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const [showModal, setShowModal] = useState(false)
+  const [spiner, setSpiner] = useState(false)
+  const [total, setTotal] = useState(0)
 
-  componentDidUpdate(prevProps, prevState) {
-    const { query, page } = this.state;
-    const prevQuery = prevState.query;
-    const prevPage = prevState.page;
-    if (prevQuery !== query || prevPage !== page) {
-      this.fetchImages(query, page);
+  useEffect(() => {
+    if (query !== '') {
+      fetchImages(query, page)
     }
-  }
+  }, [query, page])
+  
 
-  fetchImages = async (query, page) => {
+ const fetchImages = async (query, page) => {
     try {
-      this.setState({ spiner: true });
+      setSpiner(true)
       const data = await imgApiService(query, page);
       if (data.totalHits === 0) {
         toast.warning(
           `Вибачте, немає зображень, які відповідають вашому пошуковому запиту. Будь ласка спробуйте ще раз`
         );
       }
-      this.setState(prevState => ({
-        images: [...prevState.images, ...data.hits],
-        total: data.totalHits,
-      }));
+      setImages(prevState => [...prevState, data.hits])
+      setTotal(data.totalHits)
     } catch (error) {
-      this.setState({ error });
+      
     } finally {
-      this.setState({
-        spiner: false,
-      });
+      setSpiner(false)
     }
   };
 
-  onSeeMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+ const onSeeMore = () => {
+  setPage(prevState => prevState + 1)
+   
   };
 
-  onOpenModal = (largeImage, tags) => {
-    this.setState({
-      showModal: true,
-      largeImage,
-      tags,
-    });
+ const onOpenModal = (largeImage, tags) => {
+    setShowModal(true)
+    setLargeImage(largeImage)
+    setTags(tags)
   };
-  onCloseModal = () => {
-    this.setState({
-      showModal: false,
-      largeImage: '',
-      tags: '',
-    });
+ const onCloseModal = () => {
+  setShowModal(false)
+  setLargeImage(largeImage)
+  setTags(tags)
   };
 
-  handlaSubmit = query => {
-    this.setState({ query, page: 1, images: [] });
+  const handlaSubmit = query => {
+    setQuery(query)
+    setPage(1)
+    setImages([])
   };
-
-  render() {
-    const {
-      showModal,
-      spiner,
-      total,
-      largeImage,
-      tags,
-      images,
-    } = this.state;
-
 
     const totalPage = total / images.length;
     return (
       <section className={css.App}>
-        <Searchbar onSubmit={this.handlaSubmit} />
+        <Searchbar onSubmit={handlaSubmit} />
         {spiner && Loader()}
         {images.length === 0 && (<h1 className={css.TitlePreview}>Напишіть назву картинки яка вас цікавить </h1>)}
         {images.length !== 0 && (
-          <ImageGallery galary={images} openModal={this.onOpenModal} />
+          <ImageGallery galary={images} openModal={onOpenModal} />
         )}
         {totalPage > 1 && !spiner && images.length !== 0 && (
-          <ButtonSeeMore onClick={this.onSeeMore} />
+          <ButtonSeeMore onClick={onSeeMore} />
         )}
         {showModal && (
           <Modal
             tags={tags}
-            largeImage={largeImage}
-            onCloseModal={this.onCloseModal}
+            largeImageURL={largeImage}
+            onCloseModal={onCloseModal}
           />
         )}
         <ToastContainer/>
       </section>
     );
   }
-}
+
 
 export default App;
