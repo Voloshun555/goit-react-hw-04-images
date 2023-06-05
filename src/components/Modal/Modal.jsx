@@ -5,22 +5,19 @@ import css from './Modal.module.css';
 
 const modalRoot = document.querySelector('#root_modal');
 
-function Modal({ onCloseModal, largeImage, tags }) {
-
+function Modal({ onCloseModal, largeImageURL, tags }) {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-    }
+    };
   });
-
 
   const handleKeyDown = e => {
     if (e.code === 'Escape') {
       onCloseModal();
     }
   };
-  
 
   const handleBacdropClick = evt => {
     if (evt.currentTarget === evt.target) {
@@ -31,7 +28,7 @@ function Modal({ onCloseModal, largeImage, tags }) {
   return createPortal(
     <div className={css.Overlay} onClick={handleBacdropClick}>
       <div className={css.Modal}>
-        <img src={largeImage} alt={tags} />
+        <img src={largeImageURL} alt={tags} />
       </div>
     </div>,
     modalRoot
@@ -41,7 +38,7 @@ function Modal({ onCloseModal, largeImage, tags }) {
 export default Modal;
 
 Modal.propTypes = {
-  largeImage: PropTypes.string.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
   onCloseModal: PropTypes.func.isRequired,
   tags: PropTypes.string.isRequired,
 };
