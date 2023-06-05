@@ -60,8 +60,8 @@ function App() {
   };
   const onCloseModal = () => {
     setShowModal(false);
-    setLargeImage(largeImage);
-    setTags(tags);
+    setLargeImage('');
+    setTags('');
   };
 
   const handlaSubmit = query => {
